@@ -182,7 +182,7 @@ function App() {
 }
 ```
 
-실제 사용하는 UploadForm.js 에서 alert 대신 사용하면 된다.
+- 실제 사용하는 UploadForm.js 에서 alert 대신 사용하면 된다.
 
 ```
 import {toast} from 'react-toastify';
@@ -190,3 +190,30 @@ import {toast} from 'react-toastify';
 toast.success('success!')
 toast.error('fail!')
 ```
+
+##### 2024-02-21
+
+=> Create 'Progress Bar' to show the uploading status
+
+- Implemented by using `onUploadProgress`
+- https://sangcho.tistory.com/entry/axios
+- https://velog.io/@boyeon_jeong/Axios-Axios%EC%9D%98-%EB%8B%A4%EC%96%91%ED%95%9C-%EA%B8%B0%EB%8A%A5-%EC%82%B4%ED%8E%B4%EB%B3%B4%EA%B8%B0
+- Make a 'ProgressBar.js' and 'ProgressBar.css'. As a prob, ProgressBar receives 'percent' to show the progress bar using 2 'div's. To make it smooth, I used 'transition:0.3s'. 3 seconds after upload, through setPercent and setFileName, return percent and fileName to their initial values.
+
+=> Make preview function for the image uploading
+
+- by setting a condition for CSS, when choosing a file from input, it shows the preview image below the title 'image repository'. it's in the form tag. and I used FileReader in the imageSelectHandler because, when I choose some image by clicking the input tag, it shows the preview image by using FileReader.
+- https://developer-talk.tistory.com/331
+- https://taedonn.tistory.com/31
+- input attribute accept="image/\*" 를 통해서 type='file' 처럼 모든 파일을 받는 것이 아니라 이미지만을 받아들일 수 있다.
+
+```
+const fileReader = new FileReader();
+    fileReader.readAsDataURL(imageFile);
+    fileReader.onload = (e) => {
+      // setImgSrc(fileReader.result);
+      setImgSrc(e.target.result);
+    };
+```
+
+- 위 코드에서 imageFile 대신 file을 넣으면 "Failed to execute 'readAsDataURL' on 'FileReader': parameter 1 is not of type 'Blob'." 와 같은 오류가 난다. imageFile 과 file을 번갈아 넣어가면서 리액트 개발자 도구 컴포넌트 란의 hooks 부분을 비교해보니 imageFile 로 했을 때는 imgSrc 가 제대로 생성되었지만 file 로 했을 때는 생성되지 않고 오류가 났다. 어떤 사진은 둘다 되기도 했는데, 아마도 용량이 약간 더 큰 것들은 file 로 imageFile이 넘어가기 이전에 setImgSrc가 진행되므로 file이 null 인 상태로 넘어가는 것 같다. 정말로 이미지 파일이 있는 것인지 if 문을 통해 확인하는 것도 좋은 방법이라고 생각한다.

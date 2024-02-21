@@ -24,3 +24,18 @@
   transition: 0.5;
   color: white;
 }
+
+.image-preview {
+  width: 0%;
+  opacity: 0;
+  margin: 10px auto 20px auto;
+  display: block;
+  border-radius: 10px;
+  border: 2px solid grey;
+}
+
+.image-preview-show {
+  width: 75%;
+  opacity: 1;
+  transition: 0.5s;
+}
