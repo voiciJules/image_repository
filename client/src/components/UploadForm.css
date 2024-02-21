@@ -1,0 +1,26 @@
+.file-dropper {
+  border: 1px dashed black;
+  height: 200px;
+  background-color: bisque;
+  border-radius: 15px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-dropper input {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-dropper:hover {
+  background-color: orange;
+  transition: 0.5;
+  color: white;
+}

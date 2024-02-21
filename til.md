@@ -102,3 +102,91 @@ mime.extension(file.mimetype) => jpeg
 
 - https://expressjs.com/ko/starter/static-files.html
   => www.localhost:5000/uploads/filename` 실행해서 확인하기
+
+=> multer fileFilter 사용해서 이미지 파일 아닌 것은 업로드 할 수 없도록 하기
+
+```
+fileFilter: (req, file, cb) => {
+    if (["image/jpeg", "image/png"].includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("It's not an image file"), false);
+    }
+  },
+```
+
+##### 2024-02-20
+
+=> Through create-react-app, create react procject.
+
+- `npx create-react-app client` in image_repo folder
+- `npm run start`
+
+=> Form component creation
+
+- make a folder named 'components' in the src folder. make a file named 'UploadForm.js'
+  => Through useState, controle image file data
+- By using 'input','label','button','form' tags, make a form. when you enter a file by input tag, you have to save the file into [file, setFile] using useState. when you click the button, onSubmit function executes. In this function(onSubmit), you have to use formData. make a new FormData() and append the file from the input tag with key 'image'. Make a try catch phrase and by using axios, you can post the file into the backend using '/upload'. you have to sync the address. Now, the client uses localhost:3000 and server uses localhost:5000. In the client's package.json, you can write "proxy":"http://localhost:5000' and shut down and power on the client and the server once to apply the package.json newly. Now. everything should work in normal.
+- FormData reference : https://inpa.tistory.com/entry/JS-%F0%9F%93%9A-FormData-%EC%A0%95%EB%A6%AC-fetch-api
+- 자바스크립트에서 FormData 객체란 단순한 객체가 아니며 XMLHttpRequest 전송을 위하여 설계된 특수한 객체 형태이기 때문이다. 그래서 간단하게 문자열 화할 수 없어, console.log를 사용하여 확인이 불가능하다. 하지만 formdata는 이터러블하기 때문에 아래와 같은 방법으로 확인할 수 있다.
+
+```
+// 폼 객체 key 값을 순회.
+let keys = formData.keys();
+for (const pair of keys) {
+    console.log(pair);
+}
+
+// 폼 객체 values 값을 순회.
+let values = formData.values();
+for (const pair of values) {
+    console.log(pair);
+}
+
+// 폼 객체 key 와 value 값을 순회.
+let entries = formData.entries();
+for (const pair of entries) {
+    console.log(pair[0]+ ', ' + pair[1]);
+}
+```
+
+- onSubmit 과 같이 무언가를 제출하는 함수의 경우에는 페이지가 다시 모든 정보를 리로드 하지 않도록 e.preventDefault() 명령어를 사용한다.
+- axios.post 사용법
+  https://sumni.tistory.com/152
+
+=> Upload images by drag and drop
+
+- css 의 position 속성(relative, absolute)
+- reference : https://www.daleseo.com/css-position/
+- 부모 position을 relative 로 설정하고 자식을 absolute로 설정하여 두개가 겹치게 만들 수 있다. cursor 와 hover 등의 요소를 넣어주었고, display: flex 로 지정하여 justify-content, align-items 등을 사용해서 텍스트가 중간에 오게 만들 수 있었다. 개발자 도구로 element 지정하여 input 박스가 전체박스를 차지하도록 한다(position: absolute).
+
+=> Use 'react-toastify'
+`npm i react-toastify`
+다른 곳에서도 사용 가능하므로 상위단(App.js)에서 선언할 것
+https://www.npmjs.com/package/react-toastify
+
+가장 상위단인 App.js 에 아래와 같이 import 및 선언해줌
+
+```
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+function App() {
+  return (
+    <div>
+      <ToastContainer />
+      <h2>image repository</h2>
+      <UploadForm />
+    </div>
+  );
+}
+```
+
+실제 사용하는 UploadForm.js 에서 alert 대신 사용하면 된다.
+
+```
+import {toast} from 'react-toastify';
+
+toast.success('success!')
+toast.error('fail!')
+```
