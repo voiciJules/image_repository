@@ -217,3 +217,54 @@ const fileReader = new FileReader();
 ```
 
 - 위 코드에서 imageFile 대신 file을 넣으면 "Failed to execute 'readAsDataURL' on 'FileReader': parameter 1 is not of type 'Blob'." 와 같은 오류가 난다. imageFile 과 file을 번갈아 넣어가면서 리액트 개발자 도구 컴포넌트 란의 hooks 부분을 비교해보니 imageFile 로 했을 때는 imgSrc 가 제대로 생성되었지만 file 로 했을 때는 생성되지 않고 오류가 났다. 어떤 사진은 둘다 되기도 했는데, 아마도 용량이 약간 더 큰 것들은 file 로 imageFile이 넘어가기 이전에 setImgSrc가 진행되므로 file이 null 인 상태로 넘어가는 것 같다. 정말로 이미지 파일이 있는 것인지 if 문을 통해 확인하는 것도 좋은 방법이라고 생각한다.
+
+##### 2024-02-21 데이터베이스 연동해서 이미지 관리하기
+
+=> mongoDB atlas 설정 및 Node.js로 연결하기
+username : voicihojun / password : JZOkSmwQ8atwW3pz
+`npm i mongoose`
+mongoose reference : https://www.npmjs.com/package/mongoose
+MongoDB에 로그인해서 connect 메뉴를 통해 app에 연결할 수 있는 코드를 제공받을 수 있다.
+mongoDB 가 연결된 후에 서버가 연결되도록 한다.
+
+=> dotenv 사용
+`npm i dotenv`
+https://www.npmjs.com/package/dotenv
+코드의 제일 상단에 `require("dotenv").config();` 선언 후, .env 파일 만들어서 변수 생성한다. 그 후 process.env.variableName 으로 접근하여 사용가능하다. .gitignore 를 만들어서 그 안에 .env 파일을 포함시킨다. 암호를 외부에 노출 할 수 있기 때문임.
+
+=> Database에 사진정보 저장하기
+mongoose 이용해서 이미지 mongoDB 에 저장하기
+https://velog.io/@str2023/%EB%AA%BD%EA%B3%A0DB%EC%97%90-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%A0%80%EC%9E%A5%ED%95%98%EA%B8%B0-mongoDB-nodeJS-express-mongoose
+이미지 파일 저장을 위한 몽고DB 스키마(key, originalFileName을 포함)를 작성하고 모델을 만든다. 다음에 server.js의 app.post의 이미지 업로드 API 작성된 부분의 upload.single('image') 부분에서 Image 모델을 불러와 req.file의 filename 을 key에 originalname을 originalFileName 에 할당하고 Image.save()를 통해 데이터베이스에 저장한다.
+
+=> 사진정보 데이터베이스에서 불러오기
+server.js 의 app.get('/images)에서 Image.find() 함수를 이용하여 Image에 저장된 모든 이미지들을 불러온다. app.post('/upload', ...) 를 app.post('/images', ...)로 바꾸어 줌. images 에 post/get 하는 것이 더 통일성이 있다. UploadForm.js의 app.post 부분의 ('/upload') 부분도 ('/images')로 바꾸어준다.
+
+##### 2024-02-22 Make an Image List
+
+=> Fetch image datas by useEffect
+
+- Make an ImageList.js file as a component. In this file, fetch images and set them in 'images' variable by using useEffect and axios.get('/images').then(). After getting the images using axios, show them using 'images.map'. img src should use `http://localhost:5000/uploads/${image.key}`. in this source, we use files in the local 'uploads' folder. By app.use('uploads', express.static("public")), we could see each image in the browser before.
+
+=> As soon as you upload, make the image show in the imgList.
+
+- data always flow from parent to children. In the ImageList.js file, I brought useState(images files) and useEffect to App.js. Through props, I could send the datas to ImageList.js and UploadForm.js. In the UploadForm.js file's onSubmit function, by using setImages([...images, newly added image]), we can show the new image right away.
+
+=> Use Context API to manage image datas
+
+```
+export const ImageContext = createContext();
+
+export const ImageProvider = (prop) => {
+  return (
+    <ImageContext.Provider value={[images, setImages]}>
+      {prop.children}
+    </ImageContext.Provider>
+  );
+};
+```
+
+context 폴더에 ImageContext.js 파일을 만든 후 위와 같은 코드를 작성. createContext() 로 컨텍스트를 생성한 후, ImageProvider 함수를 통해 value 값을 그 하위 모든 자식들에게 사용가능하도록 하는 것이다. export 를 꼭 추가해야 한다. 그리고 최상위인 index.js 로 가서 ImageProvider 를 import 하여 <App />을 감싸주면 된다. 하위 파일들에서 사용시 useContext를 통해 value 값을 불러와서 사용하면 되는데, 여기서는 useEffect axios.get으로 불러온 images 배열을 불러와서 모든 파일에서 사용하도록 하였다.
+
+=> Show right away after uploading a new image
+UploadForm.js 의 onSubmit 부분에 `setImages([...images, res.data]);` 코드를 넣어서 전체 이미지 리스트에 새로운 이미지를 바로 추가해준다.

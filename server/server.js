@@ -33,17 +33,17 @@ mongoose
   .connect(process.env.MONGO_DB)
   .then(() => {
     console.log("MongoDB Connected!");
-    app.use("/upload", express.static("uploads"));
-    app.get("/images", async (req, res) => {
-      const images = await Image.find();
-      res.json(images);
-    });
+    app.use("/uploads", express.static("uploads"));
     app.post("/images", upload.single("image"), async (req, res) => {
       const image = await new Image({
         key: req.file.filename,
         originalFileName: req.file.originalname,
       }).save();
       res.json(image);
+    });
+    app.get("/images", async (req, res) => {
+      const images = await Image.find();
+      res.json(images);
     });
     app.listen(port, () => console.log(`app listening on port ${port}`));
   })

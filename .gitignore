@@ -2,6 +2,7 @@ server/node_modules
 server/sample_imagesg
 client/node_modules
 
+server/.env
 
 # dependencies
 /node_modules

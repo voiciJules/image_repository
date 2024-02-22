@@ -1,3 +1,8 @@
+body {
+  width: 70%;
+  margin: 0 auto;
+}
+
 .file-dropper {
   border: 1px dashed black;
   height: 200px;
