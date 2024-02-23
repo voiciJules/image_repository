@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useContext } from "react";
+import { ImageContext } from "../context/ImageContext";
 
-const ImageList = ({ images }) => {
-  console.log(images);
-
+const ImageList = () => {
+  const [images] = useContext(ImageContext);
   const imgList = images.map((image) => (
     <img
       style={{

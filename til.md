@@ -246,9 +246,9 @@ server.js 의 app.get('/images)에서 Image.find() 함수를 이용하여 Image�
 
 - Make an ImageList.js file as a component. In this file, fetch images and set them in 'images' variable by using useEffect and axios.get('/images').then(). After getting the images using axios, show them using 'images.map'. img src should use `http://localhost:5000/uploads/${image.key}`. in this source, we use files in the local 'uploads' folder. By app.use('uploads', express.static("public")), we could see each image in the browser before.
 
-=> As soon as you upload, make the image show in the imgList.
+=> Show right away in imgList after uploading a new image
 
-- data always flow from parent to children. In the ImageList.js file, I brought useState(images files) and useEffect to App.js. Through props, I could send the datas to ImageList.js and UploadForm.js. In the UploadForm.js file's onSubmit function, by using setImages([...images, newly added image]), we can show the new image right away.
+- data always flow from parent to children. In the ImageList.js file, I brought useState(images files) and useEffect to App.js. Through props, I could send the 'images' and 'setImages' to ImageList.js and UploadForm.js. In the UploadForm.js file's onSubmit function, by using setImages([...images, newly added image]), we can show the new image right away.
 
 => Use Context API to manage image datas
 
@@ -256,6 +256,13 @@ server.js 의 app.get('/images)에서 Image.find() 함수를 이용하여 Image�
 export const ImageContext = createContext();
 
 export const ImageProvider = (prop) => {
+  const [images, setImages] = useState([]);
+  useEffect(() => {
+    axios
+      .get("/images")
+      .then((result) => setImages(result.data))
+      .catch((err) => console.error(err));
+  }, []);
   return (
     <ImageContext.Provider value={[images, setImages]}>
       {prop.children}
@@ -264,7 +271,4 @@ export const ImageProvider = (prop) => {
 };
 ```
 
-context 폴더에 ImageContext.js 파일을 만든 후 위와 같은 코드를 작성. createContext() 로 컨텍스트를 생성한 후, ImageProvider 함수를 통해 value 값을 그 하위 모든 자식들에게 사용가능하도록 하는 것이다. export 를 꼭 추가해야 한다. 그리고 최상위인 index.js 로 가서 ImageProvider 를 import 하여 <App />을 감싸주면 된다. 하위 파일들에서 사용시 useContext를 통해 value 값을 불러와서 사용하면 되는데, 여기서는 useEffect axios.get으로 불러온 images 배열을 불러와서 모든 파일에서 사용하도록 하였다.
-
-=> Show right away after uploading a new image
-UploadForm.js 의 onSubmit 부분에 `setImages([...images, res.data]);` 코드를 넣어서 전체 이미지 리스트에 새로운 이미지를 바로 추가해준다.
+context 폴더에 ImageContext.js 파일을 만든 후 위와 같은 코드를 작성. createContext() 로 컨텍스트를 생성한 후, ImageProvider 컴포넌트를 통해 value 값을 그 하위 모든 자식들에게 사용 가능하도록 하는 것이다. export 를 꼭 추가해야 한다. 그리고 최상위인 index.js 로 가서 ImageProvider 를 import 하여 <App />을 감싸주면 된다. 하위 파일들에서 사용시 useContext(ImageContext)를 통해 value 값을 불러와서 사용하면 되는데, 여기서는 useEffect axios.get으로 불러온 images 배열을 불러와서 모든 파일에서 사용하도록 하였다. 이렇게 함으로써, 부모에서 자식, 자식의 자식 이런 식으로 끝없이 넘겨줘야 하는 props 문제를 해결 할 수 있다. UploadForm.js 와 ImageList.js 의 images, setImages props는 더 이상 필요없게 되었고, useContext를 사용하여 value 값을 불러와 사용할 수 있게 되었다. prop과 prop.children 사용시 중괄호 사용에 주의 할 것.

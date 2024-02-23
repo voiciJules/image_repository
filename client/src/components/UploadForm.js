@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import "./UploadForm.css";
 import { toast } from "react-toastify";
 import ProgressBar from "./ProgressBar";
+import { ImageContext } from "../context/ImageContext";
 
-const UploadForm = ({ images, setImages }) => {
+const UploadForm = () => {
+  const [images, setImages] = useContext(ImageContext);
   const defaultFileName = "pls upload your image file";
   const [fileName, setFileName] = useState(defaultFileName);
   const [file, setFile] = useState(null);
