@@ -272,3 +272,72 @@ export const ImageProvider = (prop) => {
 ```
 
 context 폴더에 ImageContext.js 파일을 만든 후 위와 같은 코드를 작성. createContext() 로 컨텍스트를 생성한 후, ImageProvider 컴포넌트를 통해 value 값을 그 하위 모든 자식들에게 사용 가능하도록 하는 것이다. export 를 꼭 추가해야 한다. 그리고 최상위인 index.js 로 가서 ImageProvider 를 import 하여 <App />을 감싸주면 된다. 하위 파일들에서 사용시 useContext(ImageContext)를 통해 value 값을 불러와서 사용하면 되는데, 여기서는 useEffect axios.get으로 불러온 images 배열을 불러와서 모든 파일에서 사용하도록 하였다. 이렇게 함으로써, 부모에서 자식, 자식의 자식 이런 식으로 끝없이 넘겨줘야 하는 props 문제를 해결 할 수 있다. UploadForm.js 와 ImageList.js 의 images, setImages props는 더 이상 필요없게 되었고, useContext를 사용하여 value 값을 불러와 사용할 수 있게 되었다. prop과 prop.children 사용시 중괄호 사용에 주의 할 것.
+
+##### 2024-02-23 Authentication(diagram 1, 2)
+
+=> 리팩토링
+multer 사용부분은 middleware 폴더의 ImageUpload.js 로 뽑아내고, post('/images') 부분은 routes 폴더의 ImageRouter.js 로 뽑아냈다. 각각에 해당되는 import 가져오고, 아래와 같이 imageRouter 선언 후, 가져온 코드의 app.post 부분을 imageRouter.post 로 변경해준다.
+
+```
+const { Router } = require("express");
+const imageRouter = Router();
+```
+
+=> 회원가입 API 만들기(diagram 3)
+`app.use(express.json())`
+req.body 찍을 때 json 파일의 경우 undefined 로 나오는데, json 파일을 알아서 파싱해서 내보내주는 코드
+userRouter.post('register', (req, res) => {}) 이용해서 /users 의 하위 라우트 만들고, server.js 에서 userRouter import 해서 `app.post('/users', userRouter)` 넣어주면 됨.
+=> 비밀번호 암호화 원리
+=> 회원가입 API 마무리하기
+`https://www.npmjs.com/package/bcryptjs`
+
+```
+const { hash } = require("bcryptjs");
+const hashedPassword = await hash(req.body.password, 10);  // password, salt 를 넣어주어 hashed password 를 만들어준다.
+```
+
+username 과 password 길이에 따른 오류 처리
+
+=> 로그인 API 만들기(diagram 4)
+
+```
+userRouter.post("/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.body.username });
+    const isValid = await compare(req.body.password, user.hashedPassword);
+    if (!isValid) throw new Error("invalid information!");
+    res.json({ message: "user validated!" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+```
+
+=> 세션 만들기
+
+```
+user.sessions.push({ createdAt: new Date() });
+const session = user.sessions[user.sessions.length - 1];
+await user.save();
+res.json({
+  message: "user validated!",
+  sessionId: session._id,
+  name: user.name,
+});
+```
+
+모델 폴더의 User.js 에 sessions 부분을 추가한다. `sessions: [{createdAt: { type: Date, required: true }}]`
+userRouter.post('/login') 에서 compare를 통해 비밀번호까지 이상없으면, 세션을 푸쉬하고 저장한다. 제일 마지막 세션이 유효한 세션. res.json을 통해 화면에 생성된 session 과 name 을 확인하다.
+userRouter.post('register') 부분도 마찬가지로 새로운 user 를 생성할 때, sessions를 넣고, res.json을 통해 생성된 session 과 name 을 확인하다.
+
+=> 로그아웃 API 만들기
+
+=> 인증 미들웨어 만들기
+
+#### HTTP METHOD
+
+GET : 리소스 조회
+POST : 요청데이터를 처리, 주로 등록에 이용한다
+PUT : 리소스를 대체, 해당 리소스가 없으면 생성한다
+PATCH : 리소스 부분 변경
+DELETE : 리소스 삭제
