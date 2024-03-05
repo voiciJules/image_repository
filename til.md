@@ -273,30 +273,34 @@ export const ImageProvider = (prop) => {
 
 context 폴더에 ImageContext.js 파일을 만든 후 위와 같은 코드를 작성. createContext() 로 컨텍스트를 생성한 후, ImageProvider 컴포넌트를 통해 value 값을 그 하위 모든 자식들에게 사용 가능하도록 하는 것이다. export 를 꼭 추가해야 한다. 그리고 최상위인 index.js 로 가서 ImageProvider 를 import 하여 <App />을 감싸주면 된다. 하위 파일들에서 사용시 useContext(ImageContext)를 통해 value 값을 불러와서 사용하면 되는데, 여기서는 useEffect axios.get으로 불러온 images 배열을 불러와서 모든 파일에서 사용하도록 하였다. 이렇게 함으로써, 부모에서 자식, 자식의 자식 이런 식으로 끝없이 넘겨줘야 하는 props 문제를 해결 할 수 있다. UploadForm.js 와 ImageList.js 의 images, setImages props는 더 이상 필요없게 되었고, useContext를 사용하여 value 값을 불러와 사용할 수 있게 되었다. prop과 prop.children 사용시 중괄호 사용에 주의 할 것.
 
-##### 2024-02-23 Authentication(diagram 1, 2)
+##### 2024-03-01 Authentication(diagram 1, 2)
 
 => 리팩토링
-multer 사용부분은 middleware 폴더의 ImageUpload.js 로 뽑아내고, post('/images') 부분은 routes 폴더의 ImageRouter.js 로 뽑아냈다. 각각에 해당되는 import 가져오고, 아래와 같이 imageRouter 선언 후, 가져온 코드의 app.post 부분을 imageRouter.post 로 변경해준다.
-
-```
-const { Router } = require("express");
-const imageRouter = Router();
-```
+PORT 변수를 .env 부분으로 빼주었음.
+server.js 의 '/images' 부분은 routes 폴더를 생성해서 imageRouter.js 파일에 넣어주었음. 그에 관한 코드들(import, module.export 등)을 옮겨줌.
+multer 사용부분은 middleware 폴더의 ImageUpload.js 로 뽑아내고 그에 관한 코드들을 옮겨줌.
+server.js 에서 app.use("/images", imageRouter); 로 imageRouter를 사용할 수 있도록 해준다.
 
 => 회원가입 API 만들기(diagram 3)
-`app.use(express.json())`
-req.body 찍을 때 json 파일의 경우 undefined 로 나오는데, json 파일을 알아서 파싱해서 내보내주는 코드
-userRouter.post('register', (req, res) => {}) 이용해서 /users 의 하위 라우트 만들고, server.js 에서 userRouter import 해서 `app.post('/users', userRouter)` 넣어주면 됨.
+routes 폴더에 userRouter.js 를 만든 후, userRouter.post('register', ...) 코드를 생성 한 후 req.body 가 이상없이 나오는지 확인한다. 값이 undefined로 나오는데 그건 json 을 파싱해서 보내주지 않기 때문이므로 `app.use(express.json())`를 server.js 에 넣어서 파싱한 값이 이상없이 출력되는지 확인하다.
+server.js 에서 'app.post('/users', userRouter) 코드를 넣어주고 해당되는 임포트 코드들을 넣어준다. models/User.js를 만들어서 username, name, password를 포함하는 User를 만들고 userRouter에서 받아온 req.body를 User 모델을 사용해서 저장하여준다. MongoDB에 가서 이상없이 생성되었는지 확인하면 끝.
+비밀번호를 이런 식으로 저장하는 것은 보안에 매우 취약.
+
 => 비밀번호 암호화 원리
+
+회원가입시 ID 는 데이터베이스에 그대로 저장하고, 패스워드는 해쉬와 salt 를 사용해서 암호화 된 형태로 데이터베이스에 저장한다. 이 암호화 된 패스워드를 패스워드 B 라고 하자. 로그인시 암호를 확인하는 방식은, 로그인하는 사람이 ID 와 패스워드를 넣으면, ID를 가지고 패스워드 B를 조회한다. 패스워드 B 로부터 salt 정보를 알아내서 그 salt 정보를 가지고 로그인하는 사람의 패스워드를 해쉬하여 패스워드 A를 만들고, 패스워드 A 와 패스워드 B 를 비교해서 두 개가 일치하면 로그인이 성공하게 되는 것이다.
+
 => 회원가입 API 마무리하기
+Bcryptjs 설치 `npm i bcryptjs`
 `https://www.npmjs.com/package/bcryptjs`
 
 ```
 const { hash } = require("bcryptjs");
-const hashedPassword = await hash(req.body.password, 10);  // password, salt 를 넣어주어 hashed password 를 만들어준다.
+const hashedPassword = await hash(req.body.password, 10);
+// password, salt 를 넣어주어 hashed password 를 만들어준다.
 ```
 
-username 과 password 길이에 따른 오류 처리
+username < 3 과 password < 6, 길이가 너무 짧으면 에러를 발생하도록 하였다.
 
 => 로그인 API 만들기(diagram 4)
 
@@ -313,6 +317,8 @@ userRouter.post("/login", async (req, res) => {
 });
 ```
 
+username 을 통해서 유저의 정보를 불러온 후에 bcryptjs의 compare 기능을 이용해서 두 패스워드를 비교하여, 일치하지 않으면 에러메세지를 내보내고 일치하면 user validated 메세지를 내보낸다.
+
 => 세션 만들기
 
 ```
@@ -327,12 +333,30 @@ res.json({
 ```
 
 모델 폴더의 User.js 에 sessions 부분을 추가한다. `sessions: [{createdAt: { type: Date, required: true }}]`
-userRouter.post('/login') 에서 compare를 통해 비밀번호까지 이상없으면, 세션을 푸쉬하고 저장한다. 제일 마지막 세션이 유효한 세션. res.json을 통해 화면에 생성된 session 과 name 을 확인하다.
-userRouter.post('register') 부분도 마찬가지로 새로운 user 를 생성할 때, sessions를 넣고, res.json을 통해 생성된 session 과 name 을 확인하다.
+userRouter.post('/login') 에서 compare를 통해 비밀번호까지 이상없으면, user.sessions.push를 통해 createdAt: new Date()를 하고 저장한다. 제일 마지막 세션이 유효한 세션. res.json을 통해 화면에 생성된 session 과 name 을 확인하다.
+userRouter.post('register') 부분도 마찬가지로 새로운 user 를 생성할 때, sessions를 넣고, res.json을 통해 새로 생성된 session 과 name 을 확인하다. 회원가입시에는 세션이 하나밖에 존재하지 않으므로 user.sessions[0] 으로 세션을 찾으면 된다.
 
 => 로그아웃 API 만들기
+userRouter.patch('/logout', ...) patch로 함. 왜냐하면 sessions 정보만 수정해주기 때문이다.
+로그아웃시에는 일단 로그인된 유저임을 확인해야 하므로 일단 req.headers 에 있는 세션정보를 가져와서 User.findOne을 통해서 user 를 찾아와서 User.updateOne을 통해서 user.id 로 유저를 탐색하고, $pull 을 session을 지워준다. 여기서, 헤더에 sessionid 가 일치하지 않는 것을 넣을 경우 "message": "Cast to ObjectId failed for value" 에러가 발생하는데 데이터베이스에 해당 sessionid 를 보내기 전에 mongoose.isValidObjectId 를 통해 데이터베이스에 보내기전에 유효성 검사를 하여 데이터베이스에 부과를 줄일 수 있다.
+
+#### ===================== 여기까지 했음.
 
 => 인증 미들웨어 만들기
+middleware/authentication.js 를 생성하고 userRouter.js 의 로그아웃시 세션정보를 통해서 유저를 가져와서 req.user 에 user 를 넣어주어서 (req.user = user) 다른 파일들에서도 req.user 정보를 사용할 수 있는 미들웨어를 만든다.
+
+```
+const authenticate = async (req, res, next) => {
+  const { sessionid } = req.headers;
+  if (!sessionid || !mongoose.isValidObjectId(sessionid)) return next();
+  const user = await User.findOne({ "sessions._id": sessionid });
+  if (!user) return next();
+  req.user = user;
+  return next();
+};
+```
+
+next() 전에 return 을 넣어주지 않으면 여러번 next() 가 호출 될 수 있는 상황이 오면서 에러(error-cant-set-headers-after-they-are-sent-to-the-client) 가 발생한다.
 
 #### HTTP METHOD
 
