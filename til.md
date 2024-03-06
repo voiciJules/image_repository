@@ -387,10 +387,16 @@ function App() {
 }
 ```
 
-#### ===================== 여기까지 했음.
-
 => create toolbar
-<a> tag 사용시 전체 페이지가 다시 리로딩되므로 a tag 사용하면 안 됨. 그래서 Link라는 라이브러리 사용하였고, 이상없이 자료 나오는 것 확인 후 Link 라는 react-router-dome 라이브러리의 함수 이용하여 해당 페이지로 각각 보내줌.
+<a> tag 사용시 전체 페이지가 다시 리로딩되므로 a tag 사용하면 안 됨. 그래서 Link (from react-router-dom)라는 라이브러리 사용하였고, 이상없이 자료 나오는 것 확인 후 Link 라는 react-router-dome 라이브러리의 함수 이용하여 해당 페이지로 각각 보내줌.
+
+```
+<Link to="/auth/register">
+  <span style={{ float: "right", marginRight: 15 }}>Signup</span>
+</Link>
+```
+
+#### ===================== 여기까지 했음.
 
 => make sign-up form
 CustomInput.js 라는 콤포넌트를 만들어서 각각의 인풋을 넣어주는 방식을 사용하였음.
