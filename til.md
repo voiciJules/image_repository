@@ -340,8 +340,6 @@ userRouter.post('register') 부분도 마찬가지로 새로운 user 를 생성�
 userRouter.patch('/logout', ...) patch로 함. 왜냐하면 sessions 정보만 수정해주기 때문이다.
 로그아웃시에는 일단 로그인된 유저임을 확인해야 하므로 일단 req.headers 에 있는 세션정보를 가져와서 User.findOne을 통해서 user 를 찾아와서 User.updateOne을 통해서 user.id 로 유저를 탐색하고, $pull 을 session을 지워준다. 여기서, 헤더에 sessionid 가 일치하지 않는 것을 넣을 경우 "message": "Cast to ObjectId failed for value" 에러가 발생하는데 데이터베이스에 해당 sessionid 를 보내기 전에 mongoose.isValidObjectId 를 통해 데이터베이스에 보내기전에 유효성 검사를 하여 데이터베이스에 부과를 줄일 수 있다.
 
-#### ===================== 여기까지 했음.
-
 => 인증 미들웨어 만들기
 middleware/authentication.js 를 생성하고 userRouter.js 의 로그아웃시 세션정보를 통해서 유저를 가져와서 req.user 에 user 를 넣어주어서 (req.user = user) 다른 파일들에서도 req.user 정보를 사용할 수 있는 미들웨어를 만든다.
 
@@ -358,10 +356,108 @@ const authenticate = async (req, res, next) => {
 
 next() 전에 return 을 넣어주지 않으면 여러번 next() 가 호출 될 수 있는 상황이 오면서 에러(error-cant-set-headers-after-they-are-sent-to-the-client) 가 발생한다.
 
-#### HTTP METHOD
+##### HTTP METHOD
 
 GET : 리소스 조회
 POST : 요청데이터를 처리, 주로 등록에 이용한다
 PUT : 리소스를 대체, 해당 리소스가 없으면 생성한다
 PATCH : 리소스 부분 변경
 DELETE : 리소스 삭제
+
+##### Section 6. React-Authentication
+
+=> react-router-dom 적용하기
+src 폴더 아래 pages 폴더생성하여 LoginPage, RegisterPage, MainPage를 만들고 MainPage 내에 UploadForm, ImageList를 위치시킨다. client 폴더에서 `npm i react-router-dom`. 이 페이지들을 App.js 에 다시 위치시킨다.
+아래와 같이, path 속성과 element 속성을 가지고 Route 를 Routes 안에 작성 후, BrowserRouter를 최상위 index.js 로 가서 다른 컴포넌트들을 감쌀 수 있도록 작성한다.
+
+```
+import { Routes, Route } from "react-router-dom";
+
+function App() {
+  return (
+    <div style={{ maxWidth: "500px", margin: "0 auto" }}>
+      <ToastContainer />
+      <Routes>
+        <Route path="/auth/register" exact element={<RegisterPage />} />
+        <Route path="/auth/login" exact element={<LoginPage />} />
+        <Route path="/" exact element={<MainPage />} />
+      </Routes>
+    </div>
+  );
+}
+```
+
+#### ===================== 여기까지 했음.
+
+=> create toolbar
+<a> tag 사용시 전체 페이지가 다시 리로딩되므로 a tag 사용하면 안 됨. 그래서 Link라는 라이브러리 사용하였고, 이상없이 자료 나오는 것 확인 후 Link 라는 react-router-dome 라이브러리의 함수 이용하여 해당 페이지로 각각 보내줌.
+
+=> make sign-up form
+CustomInput.js 라는 콤포넌트를 만들어서 각각의 인풋을 넣어주는 방식을 사용하였음.
+
+=> call sign-up API
+
+````
+await axios.post("/users/register", {name, username, password,});
+```
+를 보내주고 몽고디비에 가서 유저가 이상없이 저장되었는지 확인
+
+=> toolbar 에 로그인 유/무 표현하기
+회원가입한 경우, 회원가입/로그인 버튼을 사라지게 만들고 로그아웃 버튼이 나오도록 useContext(AuthContext) 사용하여 Me 가 있을 경우, 로그아웃 버튼 나오게하기
+=> 로그아웃 처리하기
+toolbar에서 세션아이디를 저장하기 위해서 authContext 도 불러오고 하는 부분이 있는데 앞으로 다른 컴포넌트에서도 사용할 수 있는 부분이라, 디폴트로 authContext.js 에 useEffect를 써서 me 의 내용이 바뀔때마다 headers에 세션아이디를 넣어주는 기본 문구를 삽입한다.
+```
+export const AuthProvider = ({ children }) => {
+  const [me, setMe] = useState(); // object
+
+  useEffect(() => {
+    if (me) axios.defaults.headers.common.sessionid = me.sessionId;
+    // 세션 아이디를 me 를 셋업할 때 디폴트로 넣어주는 방법
+    else delete axios.defaults.hearders.common.sessionid
+    // me 가 없으면 그전에 혹시나 저장되어 있을 수 있는 세션 아이디를 지워라
+  }, [me]);
+  return (
+    <AuthContext.Provider value={[me, setMe]}>{children}</AuthContext.Provider>
+  );
+};
+```
+=> 로그인 페이지 완성시키기
+Register page 를 참고하여 만들면 된다.
+
+=> 새로고침을 해도 로그인 유지시키기
+localStorage 이용하여 sessionId 가 있을 경우, 로그인을 유지할 수 있도록 한다.
+
+=> 오류 처리 개선하기
+toast 로 나오는 확실하지 않은 정보들을 자세히 알려주기
+````
+
+##### Authorization & 사진첩 서비스 완성시키기
+
+=> 섹션 소개
+각 라우터에 필요한 기능들 todo 리스트 만듥기
+
+=> 권한 확인 후 이미지 저장하기
+public, user(user.\_id, user.name, user.username, index:true) 이미지 모델에 추가하기
+
+=> 공개/비공개 이미지 조회 API 만들기
+userRouter.get("/me/images")
+
+=> 이미지 삭제하기
+
+```
+imageRouter.delete("/:imageId", (req, res) => {
+  // 유저 권한 확인
+  // 사진 삭제
+  // 1. uploads 폴더에 있는 사진 데이터를 삭제
+  // 2. 데이터베이스에 있는 image 문서를 삭제
+})
+```
+
+=> 좋아요 API 만들기
+imageRouter.patch('/:imageId/like', async(req, res)=>{}) 부분 가서 살펴보기
+
+##### React - Authorization & image repo service completion
+
+=> 이미지 생성 Form 수정하기
+UploadForm.js 에 isPublic useState 첨가하고 input 체크박스로 비공개인지 아닌지 isPublic 과 연결.
+업로드하려고 할때, 에러메세지 발생하는데 유저권한이 없기 때문. 유저권한이 없을때 아예 업로드할 수 있는 창이 없어지도록 하자.
