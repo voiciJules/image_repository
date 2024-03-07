@@ -52,7 +52,7 @@ userRouter.patch("/login", async (req, res) => {
 userRouter.patch("/logout", async (req, res) => {
   // 로그아웃을 하기 위해서는 일단 유저를 확인해야 함.
   try {
-    if (!req.user) throw new Error("invalid sessionid /logout");
+    if (!req.user) throw new Error("invalid sessionid /logout userRouter.js");
     await User.updateOne(
       { _id: req.user.id },
       { $pull: { sessions: { _id: req.headers.sessionid } } }

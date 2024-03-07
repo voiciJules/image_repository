@@ -415,10 +415,42 @@ await axios.post("/users/register", {name, username, password,});
 
 회원가입한 경우, 로그인 상태관리를 해줘야 하므로 client/src/context 폴더에 AuthContext.js 만든다. [me, setMe]를 통해서 상태관리를 해주고, AuthContext.Provider를 index.js에 위치시켜 어디서든지 useContext를 사용해서 로그인 상태관리를 사용할 수 있도록 한다. RegisterPage에서 setMe를 통해 userId, sessionId, name을 설정하고, ToolBar.js에서 me가 존재할 경우, 로그인, 회원가입이 나오도록 하고 그렇지 않을 경우에는 로그아웃 메뉴가 툴바에 나오도록 설정한다.
 
-##### ===================== 여기까지 했음.
-
 => 로그아웃 처리하기
-toolbar에서 세션아이디를 저장하기 위해서 authContext 도 불러오고 하는 부분이 있는데 앞으로 다른 컴포넌트에서도 사용할 수 있는 부분이라, 디폴트로 authContext.js 에 useEffect를 써서 me 의 내용이 바뀔때마다 headers에 세션아이디를 넣어주는 기본 문구를 삽입한다.
+ToolBar.js에서 logout span tag를 클릭했을 때 로그아웃 처리가 되도록 logoutHandler 를 아래와 같이 만들어 주고 나서, 회원가입 후 로그아웃 클릭하면 네트워크 메뉴에서 'invalid sessionid' 에러 발생. userRouter.js 에서 에러가 발생했음을 알 수 있다.
+
+```
+onst logoutHandler = async () => {
+    try {
+      await axios.patch("/users/logout");
+      toast.success("logged out! Toolbar.js");
+    } catch (err) {
+      console.log(err);
+      toast.error(err.message);
+    }
+  };
+```
+
+세션 아이디가 없기 때문에 에러가 발생하므로 세션아이디를 ToolBar.js 의 logoutHandler 에 넣어주면 되는데,, 그 내용은 아래와 같다.
+axios 에서 첫번째 인자는 주소부분이고, 두번째는 바뀔 것, 세번 째는 config 임.
+
+```
+  const logoutHandler = async () => {
+    try {
+      await axios.patch(
+        "/users/logout",
+        {},
+        { headers: { sessionid: me.sessionId } }
+      );
+      toast.success("logged out! Toolbar.js");
+    } catch (err) {
+      console.log(err);
+      toast.error(err.message);
+    }
+  };
+```
+
+매번 반복적으로 이 세션아이디를 설정해주는 것은 너무 귀찮은 일. context/AuthContext.js 에서 설정해주자.
+디폴트로 authContext.js 에 useEffect를 써서 me 의 내용이 바뀔때마다 headers에 세션아이디를 넣어주는 기본 문구를 삽입한다.
 
 ```
 export const AuthProvider = ({ children }) => {
@@ -435,6 +467,8 @@ export const AuthProvider = ({ children }) => {
   );
 };
 ```
+
+##### ===================== 여기까지 했음.
 
 => 로그인 페이지 완성시키기
 Register page 를 참고하여 만들면 된다.
