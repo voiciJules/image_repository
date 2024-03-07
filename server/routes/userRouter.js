@@ -18,7 +18,7 @@ userRouter.post("/register", async (req, res) => {
       hashedPassword,
       sessions: [{ createdAt: new Date() }],
     }).save();
-    const session = user.sessions[0]; // 회원가입하자 이므로 세션이 젤 첫번째 거임.
+    const session = user.sessions[0]; // 회원가입 하자마자 이므로 세션이 단 하나뿐.
     res.json({
       message: "user registered / userRouter",
       sessionId: session._id,

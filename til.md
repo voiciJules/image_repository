@@ -396,18 +396,21 @@ components 폴더에 ToolBar.js 만든다. <a> tag 사용시 전체 페이지가
 </Link>
 ```
 
-#### ===================== 여기까지 했음.
-
 => 회원가입 폼 만들기
-CustomInput.js 라는 콤포넌트를 만들어서 각각의 인풋을 넣어주는 방식을 사용하였음.
+RegisterPage.js 에 form 태그를 만들어서 name, username, password, password check 에 관한 인풋을 만들어주는데, 중복되는 부분이므로 useState, props 를 사용해서 CustomInput.js 라는 콤포넌트를 만들었고, 이걸 사용해서 RegisterPage.js에 네가지 인풋을 넣는 것을 구현한다.
 
-=> call sign-up API
+=> 회원가입 API 호출하기
+[DOM] Input elements should have autocomplete attributes (suggested: "new-password"):
+콘솔에 위와 같은 에러 나서 CustomInput.js 에 autocomplete='off' 로 넣어주니 에러 사라짐.
+
+RegisterPage.js에서 submit button 만들고 submitHandler 함수 만들어줌. 조건식 username < 3, password < 6, password != passwordCheck 확인 먼저 넣어줘서 에러발생 만들어주고, 아래와 같이 axios 사용해서 name, username, password 전달해줌.
 
 ````
 await axios.post("/users/register", {name, username, password,});
 ```
-를 보내주고 몽고디비에 가서 유저가 이상없이 저장되었는지 확인
+몽고디비에 가서 유저가 이상없이 저장되었는지 확인 및 toast 로 회원가입 성공 메세지 작성.
 
+#### ===================== 여기까지 했음.
 => toolbar 에 로그인 유/무 표현하기
 회원가입한 경우, 회원가입/로그인 버튼을 사라지게 만들고 로그아웃 버튼이 나오도록 useContext(AuthContext) 사용하여 Me 가 있을 경우, 로그아웃 버튼 나오게하기
 => 로그아웃 처리하기
