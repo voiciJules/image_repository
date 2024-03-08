@@ -468,10 +468,10 @@ export const AuthProvider = ({ children }) => {
 };
 ```
 
-##### ===================== 여기까지 했음.
-
 => 로그인 페이지 완성시키기
-Register page 를 참고하여 만들면 된다.
+Register page 를 참고하여 만들면 된다. 다 완성 후 useNavigate from 'react-router-dom' 을 이용해서 '/' Home 화면으로 되돌아가도록 설정해준다.
+
+##### ===================== 여기까지 했음.
 
 => 새로고침을 해도 로그인 유지시키기
 localStorage 이용하여 sessionId 가 있을 경우, 로그인을 유지할 수 있도록 한다.

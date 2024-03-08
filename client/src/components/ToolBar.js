@@ -10,6 +10,7 @@ const ToolBar = () => {
   const logoutHandler = async () => {
     try {
       await axios.patch("/users/logout");
+      setMe();
       toast.success("logged out! Toolbar.js");
     } catch (err) {
       console.log(err);
@@ -24,7 +25,7 @@ const ToolBar = () => {
       </Link>
       {me ? (
         <span onClick={logoutHandler} style={{ float: "right" }}>
-          log out
+          log out({me.name})
         </span>
       ) : (
         <>
