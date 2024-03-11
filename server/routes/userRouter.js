@@ -32,9 +32,11 @@ userRouter.post("/register", async (req, res) => {
 userRouter.patch("/login", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.body.username });
+    if (!user)
+      throw new Error("입력하신 정보가 옳지 않습니다. userRouter, login1 ");
     const isValid = await compare(req.body.password, user.hashedPassword);
     if (!isValid)
-      throw new Error("입력하신 정보가 옳지 않습니다. userRouter, login");
+      throw new Error("입력하신 정보가 옳지 않습니다. userRouter, login2");
     user.sessions.push({ createdAt: new Date() });
     const session = user.sessions[user.sessions.length - 1];
     await user.save();
