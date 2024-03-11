@@ -471,10 +471,30 @@ export const AuthProvider = ({ children }) => {
 => 로그인 페이지 완성시키기
 Register page 를 참고하여 만들면 된다. 다 완성 후 useNavigate from 'react-router-dom' 을 이용해서 '/' Home 화면으로 되돌아가도록 설정해준다.
 
-##### ===================== 여기까지 했음.
-
 => 새로고침을 해도 로그인 유지시키기
 localStorage 이용하여 sessionId 가 있을 경우, 로그인을 유지할 수 있도록 한다.
+userRouter.js 에 아래와 같이 작성
+
+```
+userRouter.get("/me", (req, res) => {
+  try {
+    if (!req.user) throw new Error("권한이 없습니다. userRouter /me");
+    res.json({
+      message: "success",
+      sessionId: req.headers.sessionid,
+      name: req.user.name,
+      userId: req.user._id,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+```
+
+AuthContext.js 의 useEffect 내에서 else if(sessionid) 조건문으로 sessionid 가 있을 경우에는 axios.get('/users/me')로 정보 가지고 와서 setMe로 me를 다시 설정해준다.
+
+##### ===================== 여기까지 했음.
 
 => 오류 처리 개선하기
 toast 로 나오는 확실하지 않은 정보들을 자세히 알려주기
