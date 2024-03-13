@@ -498,18 +498,63 @@ AuthContext.js 의 useEffect 내에서 else if(sessionid) 조건문으로 sessio
 toast 로 나오는 확실하지 않은 정보들을 자세히 알려주기.
 로그인 할 때, username 이 없거나 password 가 맞지 않을 때 나오는 toast 부분의 메세지가 정확하지 않으므로 err.response.data.message를 통해서 정확한 에러메세지를 사용자에게 보여줄 것. username이 없을 때의 오류처리를 해줄 것
 
-##### ===================== 여기까지 했음.
-
 ##### Authorization & 사진첩 서비스 완성시키기
 
 => 섹션 소개
-각 라우터에 필요한 기능들 todo 리스트 만듥기
+각 라우터에 필요한 기능들 todo 리스트 만들기
+
+```
+imageRouter.post("/", upload.single("image"), async (req, res) => {
+  // 유저 정보, public 유무 확인, 이미지 모델 업데이트(user:{_id, username, name}, public)
+})
+
+imageRouter.get("/", async (req, res) => {
+  // public 이미지들만 제공
+})
+
+imageRouter.delete("/:imageId", async (req, res) => {
+  // 유저 권한 확인
+  // 사진 삭제
+  // 1. uploads 폴더에 있는 사진 데이터를 삭제
+  // 2. 데이터베이스에 있는 image 문서를 삭제
+})
+
+imageRouter.patch("/:imageId/like", (req, res) => {
+  // 유저 권한 확인
+  // like 중복 안되도록 확인(한 사람이 한번만)
+});
+
+imageRouter.patch("/:imageId/unlike", (req, res) => {
+  // 유저 권한 확인
+  // like 중복 취소 안되도록 확인(한 사람이 한번만)
+});
+```
+
+```
+userRouter.get("/me/images", async (req, res) => {
+  // 본인 사진들만 리턴(public === false)
+```
 
 => 권한 확인 후 이미지 저장하기
-public, user(user.\_id, user.name, user.username, index:true) 이미지 모델에 추가하기
+Image model 수정하기 : public, user: {user.\_id, user.name, user.username, index:true} 이미지 모델에 추가하기
+아래 부분 수정(imageRouter.js)
+imageRouter.post("/", upload.single("image"), async (req, res) => {})
 
 => 공개/비공개 이미지 조회 API 만들기
+아래 부분 수정해서 public일 때와 public이 아닐 때 구분해서 보여줌.
+
+```
 userRouter.get("/me/images")
+```
+
+```
+imageRouter.get("/", async (req, res) => {
+  // public 이미지들만 제공
+  const images = await Image.find({ public: true });
+  // Image.find({탐색},{수정},{옵션})
+  res.json(images);
+});
+```
 
 => 이미지 삭제하기
 
@@ -521,6 +566,8 @@ imageRouter.delete("/:imageId", (req, res) => {
   // 2. 데이터베이스에 있는 image 문서를 삭제
 })
 ```
+
+##### ===================== 여기까지 했음.
 
 => 좋아요 API 만들기
 imageRouter.patch('/:imageId/like', async(req, res)=>{}) 부분 가서 살펴보기
