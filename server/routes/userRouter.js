@@ -82,4 +82,8 @@ userRouter.get("/me", (req, res) => {
   }
 });
 
+userRouter.get("/me", (req, res) => {
+  // 본인 사진들만 리턴(public === false)
+});
+
 module.exports = { userRouter };
