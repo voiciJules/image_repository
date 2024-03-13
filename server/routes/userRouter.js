@@ -23,6 +23,7 @@ userRouter.post("/register", async (req, res) => {
       message: "user registered / userRouter",
       sessionId: session._id,
       name: user.name,
+      userId: user._id,
     });
   } catch (err) {
     res.status(400).json({ message: err.message });
