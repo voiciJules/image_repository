@@ -599,5 +599,10 @@ imageRouter.patch("/:imageId/like", async (req, res) => {
 ##### 섹션 8. React - Authorization & 사진첩 서비스 완성시키기
 
 => 이미지 생성 Form 수정하기
-input checkbox 넣기
+input checkbox 로 이미지 저장시 공개로 할지 비공개로 할지 보여주고, formData.append('public', isPublic) 으로 공개여부 저장해주기
 MainPage.js에서 로그인 했을 경우(me 가 있을 경우)에만 이미지 업로드 기능을 보여주기
+
+=> 공개/비공개 구분해서 이미지 불러오기
+ImageContext.js에서 images, setImages 뿐 아니라 myImages, setMyImages, isPublic, setIsPublic 도 핸들링할 수 있도록 하고, 배열에 담아놨던 images, setImages를 {} 객체로 담고 나머지 변수들도 다 담아줘서 모든 곳에서 쓸수 있도록 한다. me가 있을 경우, axios로 myImages에서 이미지들을 받아오는 useEffect를 작성한다.  
+ImageList.js 에서 images에 저장될 것인지 myImages 에 저장될 것인지 조건을 지정해줘야 한다.
+로그인한 후, 비공개로 체크하고 이미지를 저장해도 공개부분에 들어가 있는데, UploadForm.js 부분의 setImages 부분을 조건문(isPublic)을 통해 공개인 경우에는 setImages 로 저장하고, 비공개인 경우에는 setMyImages 로 저장하여야 한다.
