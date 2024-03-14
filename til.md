@@ -567,10 +567,34 @@ imageRouter.delete("/:imageId", (req, res) => {
 })
 ```
 
-##### ===================== 여기까지 했음.
-
 => 좋아요 API 만들기
 imageRouter.patch('/:imageId/like', async(req, res)=>{}) 부분 가서 살펴보기
+imageRouter.patch('/:imageId/unlike', async(req, res)=>{}) 부분 가서 살펴보기
+models/Image.js에서 likes: [] 추가하기.
+imageRouter 에서 권한 확인하고, req.params.imageId 유효성 검사 후, Image를 찾아와서 likes 에 $addToSet 이용하여 중복 없이 유저 아이디 추가하기. unlike 시에는 중복 없이 $pull 사용해서 제거하면 됨.
+
+```
+imageRouter.patch("/:imageId/like", async (req, res) => {
+  // 유저 권한 확인
+  // like 중복 안되도록 확인(한 사람이 한번만)
+  try {
+    if (!req.user) throw new Error("권한이 없습니다. /:imageId/like");
+    if (!mongoose.isValidObjectId(req.params.imageId))
+      throw new Error("올바르지 않은 이미지 아이디 입니다. /:imageId/like");
+    const image = await Image.findOneAndUpdate(
+      { _id: req.params.imageId },
+      { $addToSet: { likes: req.user.id } },
+      { new: true }
+    );
+    res.json(image);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+```
+
+##### ===================== 여기까지 했음.
 
 ##### React - Authorization & image repo service completion
 
