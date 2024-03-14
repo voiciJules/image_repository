@@ -12,6 +12,7 @@ const UploadForm = () => {
   const [file, setFile] = useState(null);
   const [percent, setPercent] = useState(0);
   const [imgSrc, setImgSrc] = useState(null);
+  const [isPublic, setIsPublic] = useState(true);
 
   const imageSelectHandler = (e) => {
     const imageFile = e.target.files[0];
@@ -25,10 +26,12 @@ const UploadForm = () => {
     };
   };
 
+  console.log(isPublic);
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("image", file);
+    formData.append("public", isPublic);
 
     try {
       const res = await axios.post("/images", formData, {
@@ -51,7 +54,7 @@ const UploadForm = () => {
       setPercent(0);
       setFileName(defaultFileName);
       setImgSrc(null);
-      toast.error("UploadForm onSubmit fail");
+      toast.error(err.response.data.message, "UploadForm onSubmit fail");
     }
   };
 
@@ -72,6 +75,13 @@ const UploadForm = () => {
           onChange={imageSelectHandler}
         />
       </div>
+      <input
+        type="checkbox"
+        id="public-check"
+        value={!isPublic}
+        onChange={() => setIsPublic(!isPublic)}
+      />
+      <label htmlFor="public-check">비공개</label>
       <button
         style={{
           width: "100%",

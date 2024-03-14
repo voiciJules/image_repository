@@ -596,12 +596,8 @@ imageRouter.patch("/:imageId/like", async (req, res) => {
 
 ##### ===================== 여기까지 했음.
 
-##### React - Authorization & image repo service completion
+##### 섹션 8. React - Authorization & 사진첩 서비스 완성시키기
 
 => 이미지 생성 Form 수정하기
-UploadForm.js 에 isPublic useState 첨가하고 input 체크박스로 비공개인지 아닌지 isPublic 과 연결.
-업로드하려고 할때, 에러메세지 발생하는데 유저권한이 없기 때문. 유저권한이 없을때 아예 업로드할 수 있는 창이 없어지도록 하자.
-
-```
-
-```
+input checkbox 넣기
+MainPage.js에서 로그인 했을 경우(me 가 있을 경우)에만 이미지 업로드 기능을 보여주기
