@@ -594,8 +594,6 @@ imageRouter.patch("/:imageId/like", async (req, res) => {
 });
 ```
 
-##### ===================== 여기까지 했음.
-
 ##### 섹션 8. React - Authorization & 사진첩 서비스 완성시키기
 
 => 이미지 생성 Form 수정하기
@@ -606,3 +604,20 @@ MainPage.js에서 로그인 했을 경우(me 가 있을 경우)에만 이미지 
 ImageContext.js에서 images, setImages 뿐 아니라 myImages, setMyImages, isPublic, setIsPublic 도 핸들링할 수 있도록 하고, 배열에 담아놨던 images, setImages를 {} 객체로 담고 나머지 변수들도 다 담아줘서 모든 곳에서 쓸수 있도록 한다. me가 있을 경우, axios로 myImages에서 이미지들을 받아오는 useEffect를 작성한다.  
 ImageList.js 에서 images에 저장될 것인지 myImages 에 저장될 것인지 조건을 지정해줘야 한다.
 로그인한 후, 비공개로 체크하고 이미지를 저장해도 공개부분에 들어가 있는데, UploadForm.js 부분의 setImages 부분을 조건문(isPublic)을 통해 공개인 경우에는 setImages 로 저장하고, 비공개인 경우에는 setMyImages 로 저장하여야 한다.
+
+=> setTimeout(()=>{},0)
+로그인시 아래와 같은 에러 발생
+GET http://localhost:3000/users/me/images 400 (Bad Request)
+(anonymous) @ ImageContext.js:21
+AxiosError {message: 'Request failed with status code 400', name: 'AxiosError', code: 'ERR_BAD_REQUEST', config: {…}, request: XMLHttpRequest, …}
+
+console 에 찍힌 것
+Error: 권한이 없습니다. userRouter '/me/images'
+at /Users/hojunhwang/Documents/gitfth/portfolio_2024/image_repo/server/routes/userRouter.js:90:26
+
+분명히 우리는 로그인을 했고, localStorage에 세션 아이디도 존재함. 실제로 네트워크 메뉴에서 이 API를 호출했을 때로 가보면 세션 아이디가 포함되어 있지 않은 것을 볼 수 있다. API 호출이 실패한 이유는, AuthContext.js에서 로그인 할 때 세션아이디가 설정되기도 전에 API 호출이 일어나기 때문이다. 아주 찰나의 순간이지만 API 호출이 먼저 일어나게 되어 세션 아이디 없이 이미지를 호출하므로, 권한 없음 에러가 나오게 된 것이다. API 호출을 로그인 바로 다음 차례로 넘기면 해결되는 문제임.
+setTimeout(()=>{},0) 타임을 0으로 설정하므로써, API 호출을 로그인 바로 다음턴으로 넘겨주는 기능을 하여 문제를 해결한다.
+
+로그아웃시에도 계속 개인사진이 남아 있다. ImageContext.js에서 me 가 없을 경우에는 setMyImages([]) 로 지정해 로그아웃시에 모든 사진이 사라지도록 한다. setIsPublic(true)로 하여 공개사진이 나오도록 하고 개인사진과 공개사진을 선택하는 버튼도 사라지도록 한다.
+
+##### ===================== 여기까지 했음.
