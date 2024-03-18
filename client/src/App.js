@@ -6,6 +6,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import { Routes, Route } from "react-router-dom";
 import ToolBar from "./components/ToolBar";
+import ImagePage from "./pages/ImagePage";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <ToastContainer />
       <ToolBar />
       <Routes>
+        <Route path="/images/:imageId" exact element={<ImagePage />} />
         <Route path="/auth/register" exact element={<RegisterPage />} />
         <Route path="/auth/login" exact element={<LoginPage />} />
         <Route path="/" exact element={<MainPage />} />

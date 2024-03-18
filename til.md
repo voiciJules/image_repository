@@ -620,4 +620,13 @@ setTimeout(()=>{},0) 타임을 0으로 설정하므로써, API 호출을 로그�
 
 로그아웃시에도 계속 개인사진이 남아 있다. ImageContext.js에서 me 가 없을 경우에는 setMyImages([]) 로 지정해 로그아웃시에 모든 사진이 사라지도록 한다. setIsPublic(true)로 하여 공개사진이 나오도록 하고 개인사진과 공개사진을 선택하는 버튼도 사라지도록 한다.
 
+=> display: flex
+사진첩의 디스플레이를 바꾼다. flex 이용해서 사진첩처럼 보이게 정렬하고 hover 시 opacity 를 낮추고 그림자를 주는 등의 효과를 넣었다.
+object-fit: cover를 통해 정사각형 이미지의 찌그러짐을 방지할 수 있다.
+
+=> ImagePage
+pages 폴더에 ImagePage.js 를 만든다. App.js에 Route 태그로 images/:imageId 로 path 설정 후 ImagePage.js 를 element로 넣어준다. ImagePage.js 에서 useParams 을 이용해서 /:imageId 부분의 값을 가져올 수 있도록 한다. ImageList.js에서 img 를 클릭했을 때 ImagePage.js로 넘어갈 수 있도록 img 태그를 Link 태그로 감싸준다. ImagePage.js에서 img 태그를 사용해서 선택된 이미지를 보여주도록 하는데, 이미 우리는 images, myImages 정보를 가지고 있으므로 useContext(ImageContext)로 이미지들을 가지고 오고, images.find를 사용하여 image.\_id === imageId 인 것을 찾아서 image.key 값을 img 태그의 src에 넣어주면 된다. 하지만 클릭을 했을 때는 이미지가 잘 표시되지만, 새로고침을 하면 undefined key 에러가 발생하는데 아직 이미지를 가져오기 전에 img를 보여주려고 해서 나오는 에러이다. 따라서 image 가 없을 때는 loading... 메세지를 리턴하도록 하면 로딩되는 구간에는 loading.. 메세지를 보여준다.
+
 ##### ===================== 여기까지 했음.
+
+=> display: flex 에서 테스트시 공개로 사진을 업로드하면 개인사진에는 사진이 안 들어가는 것을 발견함.
