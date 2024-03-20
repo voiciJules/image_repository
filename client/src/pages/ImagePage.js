@@ -3,8 +3,11 @@ import { useParams } from "react-router";
 import { ImageContext } from "../context/ImageContext";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const ImagePage = () => {
+  const navigate = useNavigate();
   const { imageId } = useParams();
   const { images, myImages, setImages, setMyImages } = useContext(ImageContext);
   const [me] = useContext(AuthContext);
@@ -29,11 +32,25 @@ const ImagePage = () => {
     );
     if (result.data.public) setImages(updateImage(images, result.data));
     else setMyImages(updateImage(myImages, result.data));
-    // 좋아요 클릭할 때마다 사진첩에 사진의 개수가 늘어난다. 하지만 새로고침하면 다시 없어짐.
-    // 그래서 위와 같이 ...images.filter 를 사용하여 그전에 이미지를 지우고, like or unlike 정보가 들어간 result.data 를 넣어줌.
-    // 하지만 이렇게 할 경우, 좋아요 버튼이 클릭된 이미지가 제일 뒤로 감.
     setHasLiked(!hasLiked);
   };
+
+  const deleteImage = (images) =>
+    images.filter((image) => image._id !== imageId);
+
+  const deleteHandler = async () => {
+    try {
+      if (!window.confirm("정말 해당 이미지를 삭제하시겠습니까?")) return;
+      const result = await axios.delete(`/images/${imageId}`);
+      toast.success(result.data.message);
+      setImages(images.filter((image) => image._id !== imageId));
+      setMyImages(myImages.filter((image) => image._id !== imageId));
+      navigate("/");
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
   return (
     <div>
       <h3>Image Page - {imageId}</h3>
@@ -43,6 +60,14 @@ const ImagePage = () => {
         src={`http://localhost:5000/uploads/${image.key}`}
       />
       <span>좋아요 {image.likes.length}</span>
+      {me && image.user._id === me.userId && (
+        <button
+          style={{ float: "right", marginLeft: 10 }}
+          onClick={deleteHandler}
+        >
+          삭제
+        </button>
+      )}
       <button style={{ float: "right" }} onClick={onSubmit}>
         {hasLiked ? "좋아요 취소" : "좋아요"}
       </button>

@@ -632,6 +632,9 @@ ImagePage.js 좋아요 {개수} 나오도록 하고 좋아요 여부에 따로 '
 onClick 시 onSubmit 함수가 작동되는데, axios.patch 로 이미 like 된 이미지면 unlike 를 unlike 된 이미지면 like 를 뒷단 해당 이미지로 호출하고 그 결과값을 result 에 저장한다. 그리고 그 result 의 public 값이 true 이면 images 에 false 면 myImages에 해당 이미지를 저장한다.
 이렇게 할 경우 좋아요 버튼을 클릭시 자꾸 클릭된 사진이 사진첩에 추가되는 것을 볼수 있는데, 이것을 방지하기 위해 images.filter를 걸어 클릭되는 이미지가 filter로 걸러지고, 클릭된 이미지가 새로 저장되는 시스템이어서, 순서가 제일 뒤로 밀리는 버그가 발생한다. 그래서 sort로 생성된 시간순으로 저장하는 방법을 사용한다.
 
+=> 이미지 삭제하기
+좋아요 버튼 옆에 삭제버튼을 만든다. 클릭시 deleteHandler 함수가 작동되도록 한다. 이 함수에는 정말로 이미지를 삭제할 것인지 묻는 window.confirm을 포함한다. 그리고 이 버튼은 이미지의 주인인 user 가 있을 경우에만 보일 수 있도록, me && image.user.\_id === me.userId 를 조건으로 보여지도록 한다. deleteHandler에서 axios.delete 호출로 해당 이미지를 삭제하고, server.js 에서 만든 api 의 메세지를 toast를 통해 보여준다. 그리고 setImages 와 setMyImages 에 필터를 걸어 삭제된 이미지와 다른 이미지들만 저장되도록 한다. useNavigate를 사용하여 홈 화면으로 돌아가도록 설정한다.
+
 ##### ===================== 여기까지 했음.
 
 => display: flex 에서 테스트시 공개로 사진을 업로드하면 개인사진에는 사진이 안 들어가는 것을 발견함.
