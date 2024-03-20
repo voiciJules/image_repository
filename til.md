@@ -645,6 +645,9 @@ UploadForm.js input에 multiple 속성을 넣음으로써 여러 파일 선택�
 imageRouter.js 의 post 부분 single 을 array 로 바꾸어주고 이미지 파일을 5장 까지만 한번에 올릴 수 있게 parameter 넣어주었다.
 그 전에는 한개의 이미지만 받았지만 여러개의 이미지를 한번에 받으니, map 을 돌려주어 각각의 이미지를 리턴하도록 하는데, 그 전체 코드가 promise를 리턴하므로 Promise.all() 로 감싸주고 이 프로미스 올에 await를 적용시켜 images 변수에 저장한다. 그리고 이 결과값을 리턴하면 되고 res.json(images) 하면 됨. 그리고 UploadForm.js 에서 이제는 배열을 추가하는 것이므로 res.data 가 아닌 ...res.data를 추가해주면 된다.
 
+=> 여러 이미지 미리보기
+복잡해서 그냥 강의 다시한번 보는게 나음.
+
 ##### ===================== 여기까지 했음.
 
 섹션 8. => display: flex 에서 테스트시 공개로 사진을 업로드하면 개인사진에는 사진이 안 들어가는 것을 발견함.
