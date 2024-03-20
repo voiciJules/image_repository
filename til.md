@@ -625,7 +625,12 @@ setTimeout(()=>{},0) 타임을 0으로 설정하므로써, API 호출을 로그�
 object-fit: cover를 통해 정사각형 이미지의 찌그러짐을 방지할 수 있다.
 
 => ImagePage
-pages 폴더에 ImagePage.js 를 만든다. App.js에 Route 태그로 images/:imageId 로 path 설정 후 ImagePage.js 를 element로 넣어준다. ImagePage.js 에서 useParams 을 이용해서 /:imageId 부분의 값을 가져올 수 있도록 한다. ImageList.js에서 img 를 클릭했을 때 ImagePage.js로 넘어갈 수 있도록 img 태그를 Link 태그로 감싸준다. ImagePage.js에서 img 태그를 사용해서 선택된 이미지를 보여주도록 하는데, 이미 우리는 images, myImages 정보를 가지고 있으므로 useContext(ImageContext)로 이미지들을 가지고 오고, images.find를 사용하여 image.\_id === imageId 인 것을 찾아서 image.key 값을 img 태그의 src에 넣어주면 된다. 하지만 클릭을 했을 때는 이미지가 잘 표시되지만, 새로고침을 하면 undefined key 에러가 발생하는데 아직 이미지를 가져오기 전에 img를 보여주려고 해서 나오는 에러이다. 따라서 image 가 없을 때는 loading... 메세지를 리턴하도록 하면 로딩되는 구간에는 loading.. 메세지를 보여준다.
+pages 폴더에 ImagePage.js 를 만든다. App.js에 Route 태그로 images/:imageId 로 path 설정 후 ImagePage.js 를 element로 넣어준다. ImagePage.js 에서 useParams 을 이용해서 /:imageId 부분의 값을 가져올 수 있도록 한다. ImageList.js에서 img 를 클릭했을 때 ImagePage.js로 넘어갈 수 있도록 img 태그를 Link 태그로 감싸준다. ImagePage.js에서 img 태그를 사용해서 선택된 이미지를 보여주도록 하는데, 이미 우리는 images, myImages 정보를 가지고 있으므로 useContext(ImageContext)로 이미지들을 가지고 오고, images.find를 사용하여 "image.\_id" === imageId 인 것을 찾아서 image.key 값을 img 태그의 src에 넣어주면 된다. 하지만 클릭을 했을 때는 이미지가 잘 표시되지만, 새로고침을 하면 undefined key 에러가 발생하는데 아직 이미지를 가져오기 전에 img를 보여주려고 해서 나오는 에러이다. 따라서 image 가 없을 때는 loading... 메세지를 리턴하도록 하면 로딩되는 구간에는 loading.. 메세지를 보여준다.
+
+=> 좋아요 적용하기
+ImagePage.js 좋아요 {개수} 나오도록 하고 좋아요 여부에 따로 '좋아요' 혹은 '좋아요 취소' 버튼이 보이도록 한다.
+onClick 시 onSubmit 함수가 작동되는데, axios.patch 로 이미 like 된 이미지면 unlike 를 unlike 된 이미지면 like 를 뒷단 해당 이미지로 호출하고 그 결과값을 result 에 저장한다. 그리고 그 result 의 public 값이 true 이면 images 에 false 면 myImages에 해당 이미지를 저장한다.
+이렇게 할 경우 좋아요 버튼을 클릭시 자꾸 클릭된 사진이 사진첩에 추가되는 것을 볼수 있는데, 이것을 방지하기 위해 images.filter를 걸어 클릭되는 이미지가 filter로 걸러지고, 클릭된 이미지가 새로 저장되는 시스템이어서, 순서가 제일 뒤로 밀리는 버그가 발생한다. 그래서 sort로 생성된 시간순으로 저장하는 방법을 사용한다.
 
 ##### ===================== 여기까지 했음.
 
