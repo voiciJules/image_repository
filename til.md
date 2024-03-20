@@ -635,6 +635,16 @@ onClick 시 onSubmit 함수가 작동되는데, axios.patch 로 이미 like 된 
 => 이미지 삭제하기
 좋아요 버튼 옆에 삭제버튼을 만든다. 클릭시 deleteHandler 함수가 작동되도록 한다. 이 함수에는 정말로 이미지를 삭제할 것인지 묻는 window.confirm을 포함한다. 그리고 이 버튼은 이미지의 주인인 user 가 있을 경우에만 보일 수 있도록, me && image.user.\_id === me.userId 를 조건으로 보여지도록 한다. deleteHandler에서 axios.delete 호출로 해당 이미지를 삭제하고, server.js 에서 만든 api 의 메세지를 toast를 통해 보여준다. 그리고 setImages 와 setMyImages 에 필터를 걸어 삭제된 이미지와 다른 이미지들만 저장되도록 한다. useNavigate를 사용하여 홈 화면으로 돌아가도록 설정한다.
 
+##### 섹션 9. Pagenation & Infinite Scroll
+
+=> 섹션 소개
+한번에 많은 데이터를 다 불러오는 것은 서버에 과부하를 주고 화면도 늦게 뜨므로 좋지 않다. 그래서, 데이터(이미지)를 필요한 만큼만 불러오고 스크롤을 내려서 어떤 지점에 도달하게 되면 다음 20장을 보여주고 이런식으로 pagenation을 구현할 것. 구현 도중 나오는 오류들을 해결.
+
+=> 이미지 여러개 한번에 업로드하기
+UploadForm.js input에 multiple 속성을 넣음으로써 여러 파일 선택이 가능해진다.
+imageRouter.js 의 post 부분 single 을 array 로 바꾸어주고 이미지 파일을 5장 까지만 한번에 올릴 수 있게 parameter 넣어주었다.
+그 전에는 한개의 이미지만 받았지만 여러개의 이미지를 한번에 받으니, map 을 돌려주어 각각의 이미지를 리턴하도록 하는데, 그 전체 코드가 promise를 리턴하므로 Promise.all() 로 감싸주고 이 프로미스 올에 await를 적용시켜 images 변수에 저장한다. 그리고 이 결과값을 리턴하면 되고 res.json(images) 하면 됨. 그리고 UploadForm.js 에서 이제는 배열을 추가하는 것이므로 res.data 가 아닌 ...res.data를 추가해주면 된다.
+
 ##### ===================== 여기까지 했음.
 
-=> display: flex 에서 테스트시 공개로 사진을 업로드하면 개인사진에는 사진이 안 들어가는 것을 발견함.
+섹션 8. => display: flex 에서 테스트시 공개로 사진을 업로드하면 개인사진에는 사진이 안 들어가는 것을 발견함.

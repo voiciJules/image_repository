@@ -9,14 +9,15 @@ const UploadForm = () => {
   const { images, setImages, myImages, setMyImages } = useContext(ImageContext);
   const defaultFileName = "pls upload your image file";
   const [fileName, setFileName] = useState(defaultFileName);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState(null);
   const [percent, setPercent] = useState(0);
   const [imgSrc, setImgSrc] = useState(null);
   const [isPublic, setIsPublic] = useState(true);
 
   const imageSelectHandler = (e) => {
-    const imageFile = e.target.files[0];
-    setFile(imageFile);
+    const imageFiles = e.target.files;
+    setFiles(imageFiles);
+    const imageFile = imageFiles[0];
     setFileName(imageFile.name);
     const fileReader = new FileReader();
     fileReader.readAsDataURL(imageFile);
@@ -29,7 +30,9 @@ const UploadForm = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("image", file);
+    for (let file of files) {
+      formData.append("image", file);
+    }
     formData.append("public", isPublic);
 
     try {
@@ -39,8 +42,8 @@ const UploadForm = () => {
           setPercent(Math.round((e.loaded / e.total) * 100));
         },
       });
-      if (isPublic) setImages([...images, res.data]);
-      else setMyImages([...myImages, res.data]);
+      if (isPublic) setImages([...images, ...res.data]);
+      else setMyImages([...myImages, ...res.data]);
 
       toast.success("UploadForm onSubmit success");
       setTimeout(() => {
@@ -71,6 +74,7 @@ const UploadForm = () => {
           type="file"
           id="image"
           accept="image/*"
+          multiple
           onChange={imageSelectHandler}
         />
       </div>
